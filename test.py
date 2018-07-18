@@ -1,6 +1,6 @@
 import argparse
 import glob
-from os import path
+import os
 
 import matplotlib
 from matplotlib.patches import Patch

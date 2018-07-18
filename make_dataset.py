@@ -10,7 +10,7 @@ from distutils.dir_util import copy_tree
 original_dataset = "/Volumes/External/arcdataset/public/ARCdataset_png/"
 
 # Dataset dir for SegNet (Destination)
-segnet_dataset = "/Users/ryorsk/Desktop/ARCdataset_segnet_new/"
+segnet_dataset = "/Volumes/External/arcdataset/public/ARCdataset_segnet_new/"
 
 # Image extension (e.g. png, bmp)
 ext = 'png'

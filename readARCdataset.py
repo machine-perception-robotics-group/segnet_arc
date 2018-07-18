@@ -96,7 +96,7 @@ arc_label_colors = (
 )
 
 class arcDataset(chainer.dataset.DatasetMixin):
-    def __init__(self, split='train'):
+    def __init__(self, data_dir='auto', split='train'):
         if split not in ['train', 'val', 'test']:
             raise ValueError(
                 'Please pick split from \'train\', \'val\', \'test\'')
@@ -104,7 +104,8 @@ class arcDataset(chainer.dataset.DatasetMixin):
         data_dir = root
 
         img_list_path = os.path.join(data_dir, '{}.txt'.format(split))
-        self.paths = [[data_dir for fn in line.split()] for line in open(img_list_path)]
+        self.paths = [[os.path.join(data_dir, fn) for fn in line.split()]
+                      for line in open(img_list_path)]
 
     def __len__(self):
         return len(self.paths)
