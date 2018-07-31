@@ -10,7 +10,7 @@ from distutils.dir_util import copy_tree
 original_dataset = "/Volumes/External/arcdataset/public/ARCdataset_png/"
 
 # Dataset dir for SegNet (Destination)
-segnet_dataset = "/Volumes/External/arcdataset/public/ARCdataset_segnet_new/"
+segnet_dataset = "/Volumes/External/arcdataset/ARCdataset_segnet_new/"
 
 # Image extension (e.g. png, bmp)
 ext = 'png'
@@ -87,6 +87,8 @@ def copyResize(src, dest, type):
         elif type == "gray":
             img = cvResize(src_path, 480, 360, cv.INTER_NEAREST)
             img = convertGray(img)
+        elif type == "label":
+            img = cvResize(src_path, 480, 360, cv.INTER_NEAREST)
         cv.imwrite(os.path.join(dest, os.path.basename(src_path)), img)
 
 
@@ -110,15 +112,24 @@ def saveFileList(image_dir, annot_dir, type):
     f.close()
 
 
-def moveValidationSet(train, trainannot, val, valannot):
+def moveValidationSet(train, trainannot, trainlabel, val, valannot, vallabel):
     image_list = glob.glob(os.path.join(train, '*.' + ext))
     image_list.sort()
 
     annot_list = glob.glob(os.path.join(trainannot, '*.' + ext))
     annot_list.sort()
 
+    label_list = glob.glob(os.path.join(trainlabel, '*.' + ext))
+    label_list.sort()
+
     if len(image_list) != len(annot_list):
-        print("[Error] Number of files is mismatch: " + image_dir + ", " + annot_dir )
+        print("[Error] Number of files is mismatch: image, annot")
+        exit(1)
+    elif len(image_list) != len(label_list):
+        print("[Error] Number of files is mismatch: image, label")
+        exit(1)
+    elif len(annot_list) != len(label_list):
+        print("[Error] Number of files is mismatch: annot, label")
         exit(1)
 
     for i in range(0, len(image_list)):
@@ -127,6 +138,7 @@ def moveValidationSet(train, trainannot, val, valannot):
             #print(image_list[i])
             shutil.move(image_list[i], val)
             shutil.move(annot_list[i], valannot)
+            shutil.move(label_list[i], vallabel)
 
 
 def main():
@@ -139,21 +151,29 @@ def main():
     # Destination dir init
     dest_test_path       = os.path.join(segnet_dataset, "test")
     dest_testannot_path  = os.path.join(segnet_dataset, "testannot")
+    dest_testlabel_path  = os.path.join(segnet_dataset, "testlabel")
     dest_train_path      = os.path.join(segnet_dataset, "train")
     dest_trainannot_path = os.path.join(segnet_dataset, "trainannot")
+    dest_trainlabel_path = os.path.join(segnet_dataset, "trainlabel")
     dest_val_path        = os.path.join(segnet_dataset, "val")
     dest_valannot_path   = os.path.join(segnet_dataset, "valannot")
-    [os.mkdir(path) for path in [dest_test_path, dest_testannot_path,
-        dest_train_path, dest_trainannot_path, dest_val_path, dest_valannot_path]]
+    dest_vallabel_path   = os.path.join(segnet_dataset, "vallabel")
+    [os.mkdir(path) for path in [
+        dest_test_path, dest_testannot_path, dest_testlabel_path,
+        dest_train_path, dest_trainannot_path, dest_trainlabel_path,
+        dest_val_path, dest_valannot_path, dest_vallabel_path]]
 
     # Copy images
     copyResize(src_test_path, dest_test_path, "color")
     copyResize(src_testannot_path, dest_testannot_path, "gray")
+    copyResize(src_testannot_path, dest_testlabel_path, "label")
     copyResize(src_train_path, dest_train_path, "color")
     copyResize(src_trainannot_path, dest_trainannot_path, "gray")
+    copyResize(src_trainannot_path, dest_trainlabel_path, "label")
 
     # Move to val
-    moveValidationSet(dest_train_path, dest_trainannot_path, dest_val_path, dest_valannot_path)
+    moveValidationSet(dest_train_path, dest_trainannot_path, dest_trainlabel_path,
+                      dest_val_path, dest_valannot_path, dest_vallabel_path)
 
     # Text export
     saveFileList(dest_test_path, dest_testannot_path, "test")
