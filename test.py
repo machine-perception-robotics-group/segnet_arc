@@ -39,10 +39,10 @@ def vis_semantic_segmentation(
         print("[Error] label_color is None")
         exit(1)
 
-    label_colors = np.array(label_colors) / 255
+    label_colors = np.array(label_colors) / 255.
     cmap = matplotlib.colors.ListedColormap(label_colors)
 
-    img = cmap(label / (n_class - 1), alpha=alpha)
+    img = cmap(label / float(n_class - 1), alpha=alpha)
 
     img = img * 255
     return(img)
